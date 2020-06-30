@@ -27,4 +27,4 @@ Manifest.toml
 .ipynb_checkpoints/
 
 # Mac OS
-DS_Store
+.DS_Store
