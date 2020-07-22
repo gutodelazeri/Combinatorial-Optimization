@@ -1,5 +1,6 @@
 import argparse
 import IPSolver as solver
+import Instance as inst
 
 
 def main():
@@ -11,5 +12,8 @@ def main():
 
 
 if __name__ == "__main__":
-    s = solver.IPSolver('tba1', 5, True)
-    s.solveModel()
+    ins = inst.Instance("tba1")
+    s = 0
+    for i in range(ins.n):
+        s += ins.p[i][0]
+    print(s)
