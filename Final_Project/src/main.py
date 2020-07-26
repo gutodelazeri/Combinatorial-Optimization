@@ -1,6 +1,5 @@
 import argparse
 import IPSolver as solver
-import Instance as inst
 
 
 def main():
@@ -12,8 +11,9 @@ def main():
 
 
 if __name__ == "__main__":
-    ins = inst.Instance("tba1")
-    s = 0
-    for i in range(ins.n):
-        s += ins.p[i][0]
-    print(s)
+    ip = solver.IPSolver("tba1", 100, False)
+    ip.solveModel()
+    print(ip.getObjectiveValue())
+    print(ip.getRelativeGap())
+    print(ip.getOperatorsPermutation())
+    print(ip.getTotalCost())
