@@ -11,7 +11,7 @@ def main():
 
 
 if __name__ == "__main__":
-    ip = solver.IPSolver("tba0", 100, False)
+    ip = solver.IPSolver("tba10", 1000, False)
     ip.solveModel()
     print(ip.getObjectiveValue())
     print(ip.getRelativeGap())

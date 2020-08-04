@@ -70,8 +70,8 @@ class IPSolver:
         for i in range(n):
             self._model.add_constraint(model.sum(x[i, j] for j in range(m)) == 1)
 
-        for j in range(m):
-            self._model.add_constraint(model.sum(x[i, j] for i in range(n)) >= 1)
+        #for j in range(m):
+        #    self._model.add_constraint(model.sum(x[i, j] for i in range(n)) >= 1)
 
         for i, j in combinations(range(n), 2):
             for k in range(m):
