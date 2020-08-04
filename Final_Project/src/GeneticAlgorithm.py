@@ -51,13 +51,13 @@ class GeneticAlgorithm:
 
     @staticmethod
     def _crossover(parent1, parent2):
-        return Individual(parent1.permutation, parent2.interval), Individual(parent1.interval, parent2.permutation)
+        return Individual(parent1.permutation, parent2.interval), Individual(parent2.permutation, parent1.interval)
 
     def _mutation(self, individual):
         def chooseOperators():
             first = rd.randint(0, self._instance.m - 1)
             second = rd.randint(0, self._instance.m - 1)
-            while first == second or first not in individual.chromosome or second not in individual.chromosome:
+            while first == second or first not in individual.interval or second not in individual.interval:
                 first = rd.randint(0, self._instance.m - 1)
                 second = rd.randint(0, self._instance.m - 1)
             return first, second
@@ -71,7 +71,7 @@ class GeneticAlgorithm:
 
         def partition():
             increase_op, decrease_op = chooseOperators()
-            individual.interval.append(increase_op) # todo: Maybe the magnitude of these changes can be a parameter
+            individual.interval.append(increase_op)  # todo: Maybe the magnitude of these changes can be a parameter
             individual.interval.remove(decrease_op)
             individual.interval.sort()
 
@@ -82,7 +82,7 @@ class GeneticAlgorithm:
 
     def _selectNewPopulation(self, population):
         population.sort(key=lambda individual: individual.fitness)
-        population = population[:-self._mu]
+        population = population[:-self._lambda]
         return population
 
     def _getFitness(self, individual):
@@ -100,15 +100,13 @@ class GeneticAlgorithm:
             individual.generateChromosome()
             individual.fitness = self._getFitness(individual)
 
-    def _testMethods(self):
-        i = Individual([2, 1, 3], [0, 0, 1, 2, 2, 2, 3, 3])
-
-
     def evolve(self):
         population = self._generateInitialPopulation()
         self._evaluatePopulation(population)
         bestIndividualOverall = self._getFittestIndividual(population)
         generationsWithoutImprovement = 0
+        generationsCounter = 0
+        print("Generation {0}: {1}".format(generationsCounter, bestIndividualOverall.fitness))
         while generationsWithoutImprovement < self._omega:
             # Select individuals for crossover
             parents = []
@@ -138,8 +136,12 @@ class GeneticAlgorithm:
                 generationsWithoutImprovement = 0
             else:
                 generationsWithoutImprovement += 1
+            generationsCounter += 1
+            print("Generation {0}: {1}".format(generationsCounter, bestIndividualOverall.fitness))
+
+        print(bestIndividualOverall.fitness)
 
 
 if __name__ == "__main__":
-    ga = GeneticAlgorithm("tba10", 10, 4, 4, 0.5, 10)
-    ga._testMethods()
+    ga = GeneticAlgorithm("tba0", 20, 4, 4, 0.5, 10)
+    ga.evolve()
