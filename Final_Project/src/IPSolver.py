@@ -70,7 +70,7 @@ class IPSolver:
         for i in range(n):
             self._model.add_constraint(model.sum(x[i, j] for j in range(m)) == 1)
 
-        #for j in range(m):
+        # for j in range(m):
         #    self._model.add_constraint(model.sum(x[i, j] for i in range(n)) >= 1)
 
         for i, j in combinations(range(n), 2):
@@ -109,7 +109,31 @@ class IPSolver:
         else:
             return -1
 
+    def getTasksPartition(self):
+        if self.getSolutionStatus():
+            intervals = []
+            x = self._modelVars_x
+            sol = self._modelSolution
+            n = self._instance.n
+            for operator in self.getOperatorsPermutation():
+                intervals.append([task for task in range(n) if sol.get_value(x[task, operator]) == 1])
+            return intervals
+        else:
+            return []
+
     def getOperatorsPermutation(self):
+        if self.getSolutionStatus():
+            permutation = []
+            for task in range(self._instance.n):
+                for operator in range(self._instance.m):
+                    if operator not in permutation and self._modelSolution.get_value(
+                            self._modelVars_x[task, operator]) == 1:
+                        permutation.append(operator)
+            return permutation
+        else:
+            return []
+
+    def getSolution(self):
         if self.getSolutionStatus():
             n = self._instance.n
             m = self._instance.m
@@ -118,16 +142,3 @@ class IPSolver:
             return [j for i in range(n) for j in range(m) if sol.get_value(x[i, j]) == 1]
         else:
             return []
-
-    def getTasksPartition(self):
-        return
-
-    def getTotalCost(self):
-        if self.getSolutionStatus():
-            total = 0
-            p = self.getOperatorsPermutation()
-            for task, worker in zip(range(len(p)), p):
-                total += self._instance.p[task][worker]
-            return total
-        else:
-            return -1

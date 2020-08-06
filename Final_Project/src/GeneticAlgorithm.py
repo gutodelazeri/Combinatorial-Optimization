@@ -32,11 +32,11 @@ class GeneticAlgorithm:
     # todo: Treat case n < m
     def _generateInitialPopulation(self):
         population = []
+        permutation = [i for i in range(self._instance.m)] # todo: remember to test if this work
         for k in range(self._mu):
             interval = sorted([rd.randint(0, self._instance.m - 1) for _ in range(self._instance.n)])
-            permutation = [i for i in range(self._instance.m)]
             rd.shuffle(permutation)
-            population.append(Individual(permutation, interval))
+            population.append(Individual(permutation.copy(), interval))
         return population
 
     def _randomTournament(self, population):
@@ -140,6 +140,15 @@ class GeneticAlgorithm:
             print("Generation {0}: {1}".format(generationsCounter, bestIndividualOverall.fitness))
 
         print(bestIndividualOverall.fitness)
+
+    def getTasksPartition(self):
+        return
+
+    def getOperatorsPermutation(self):
+        return
+
+    def getSolution(self):
+        return
 
 
 if __name__ == "__main__":
