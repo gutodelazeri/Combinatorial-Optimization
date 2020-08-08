@@ -52,7 +52,7 @@ def parseInput():
 
 
 def saveSolution(outFile, stats):
-    with open(outFile + ".dat", 'r') as out:
+    with open(outFile + ".dat", 'w') as out:
         out.write("Instance name: {0}".format(stats.instance))
         out.write("Method: {0}".format(stats.method))
         out.write("Elapsed Time: {0}".format(stats.totalTime))
@@ -72,7 +72,6 @@ def main():
         ip = IP(instance, t, v)
         ip.solveModel()
         statistics = ip.getStatistics()
-
     saveSolution(outFile, statistics)
 
 

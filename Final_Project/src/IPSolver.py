@@ -1,6 +1,9 @@
+import sys
+import time
 from docplex.mp.model import *
 from itertools import combinations
-import Instance as inst
+from Instance import Instance
+from Statistics import Statistics
 
 
 class IPSolver:
@@ -31,15 +34,16 @@ class IPSolver:
     _verbose : bool
     """
 
-    def __init__(self, instanceName, timeLimit, verbose):
+    def __init__(self, instanceName, timeLimit=1800, verbose=True):
         self._model = None
         self._modelVars_x = None
         self._modelVars_w = None
         self._modelVars_y = None
         self._modelSolution = None
-        self._instance = inst.Instance(instanceName)
+        self._instance = Instance(instanceName)
         self._timeLimit = timeLimit
         self._verbose = verbose
+        self._stats = Statistics(instanceName, "Integer Programming")
 
     def _initSolver(self):
         self._model = Model(name=self._instance.name)
@@ -94,6 +98,9 @@ class IPSolver:
         self._buildModel()
         self._modelSolution = self._model.solve()
 
+    def getStatistics(self):
+        return self._stats
+
     def getSolutionStatus(self):
         return self._modelSolution is not None
 
@@ -142,3 +149,24 @@ class IPSolver:
             return [j for i in range(n) for j in range(m) if sol.get_value(x[i, j]) == 1]
         else:
             return []
+
+
+def test():
+    inst = str(sys.argv[1])
+
+    start = time.time()
+    ip = IPSolver(inst, 1800, False)
+    ip.solveModel()
+    end = time.time()
+
+    total = end - start
+
+    with open("../Tests/ip.txt", "a") as output:
+        output.write("{0},{1:.2f},{2:.2f}\n".format(inst, total, ip.getObjectiveValue()))
+
+
+def debug():
+
+
+if __name__ == "__main__":
+    test()
