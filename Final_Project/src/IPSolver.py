@@ -166,6 +166,7 @@ def test():
 
 
 def debug():
+    return
 
 
 if __name__ == "__main__":

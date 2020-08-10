@@ -1,6 +1,7 @@
 import random as rd
 import time
 import sys
+import math
 from Instance import Instance
 from Individual import Individual
 from Statistics import Statistics
@@ -17,14 +18,30 @@ class GeneticAlgorithm:
         self._timeLimit = timeLimit
         self._verbose = verbose
         self._stats = Statistics(instanceName, "Genetic Algorithm")
+        self._bestIndividual = None
 
     def _generateInitialPopulation(self):
+        def createIntervals(): #todo: deal with the cases when |m-n| is small and when m > n
+            delimiters = []
+            intervals = []
+            while len(delimiters) < self._instance.m:
+                n = rd.randint(0, self._instance.n-2)
+                while n in delimiters:
+                    n = rd.randint(0, self._instance.n-2)
+                delimiters.append(n)
+            delimiters.sort()
+            start = 0
+            for delimiter in delimiters:
+                intervals.append([i for i in range(start, delimiter+1)])
+                start = delimiter+1
+            intervals.append([i for i in range(start, self._instance.n)])
+            return intervals
         population = []
-        permutation = [i for i in range(self._instance.m)]  # todo: remember to test if this work
+        permutation = [i for i in range(self._instance.m)]
         for k in range(self._mu):
-            interval = sorted([rd.randint(0, self._instance.m - 1) for _ in range(self._instance.n)])
+            intervals = createIntervals()
             rd.shuffle(permutation)
-            population.append(Individual(permutation.copy(), interval))
+            population.append(Individual(permutation.copy(), intervals))
         return population
 
     def _randomTournament(self, population):
@@ -53,14 +70,17 @@ class GeneticAlgorithm:
         return population
 
     def _getFitness(self, individual):
-        costs = [0 for _ in range(self._instance.m)]
-        for task, operator in zip(range(self._instance.n), individual.chromosome):
-            costs[operator] += self._instance.p[task][operator]
-        return max(costs)
+        maxCost = math.inf
+        for interval, operator in zip(individual.intervals, individual.permutation):
+            cost = 0
+            for task in interval:
+                cost += self._instance.p[task][operator]
+            if cost < maxCost:
+                maxCost = cost
+        return maxCost
 
     def _evaluatePopulation(self, population):
         for individual in population:
-            individual.generateChromosome()
             individual.fitness = self._getFitness(individual)
 
     @staticmethod
@@ -69,42 +89,38 @@ class GeneticAlgorithm:
 
     @staticmethod
     def _crossover(parent1, parent2):
-        return Individual(parent1.permutation, parent2.interval), Individual(parent2.permutation, parent1.interval)
+        return Individual(parent1.permutation, parent2.intervals), Individual(parent2.permutation, parent1.intervals)
 
     @staticmethod
     def _mutation(individual):
-        def chooseOperators():
-            pool = list(set(individual.interval))
-            first = pool[rd.randint(0, len(pool) - 1)]
-            second = pool[rd.randint(0, len(pool) - 1)]
-            while first == second:
-                first = pool[rd.randint(0, len(pool) - 1)]
-                second = pool[rd.randint(0, len(pool) - 1)]
-
-            return first, second
-
         def permutation():
             for i in range(rd.randint(1, 10)):
-                op1, op2 = chooseOperators()
+                maxOpId = len(individual.permutation)-1
+                op1, op2 = rd.randint(0, maxOpId), rd.randint(0, maxOpId)
                 op1_i = individual.permutation.index(op1)
                 op2_i = individual.permutation.index(op2)
                 individual.permutation[op1_i], individual.permutation[op2_i] = individual.permutation[op2_i], \
                                                                                individual.permutation[op1_i]
 
-        def partition():
-            increase_op, decrease_op = chooseOperators()
-            maximumMoveSize = individual.interval.count(decrease_op)
+        def intervals():
+            mutationPoint = rd.randint(1, len(individual.permutation)-1)
+            firstOrSecond = rd.randint(0, 1)
+            maximumMoveSize = len(individual.intervals[mutationPoint - firstOrSecond])
             if maximumMoveSize > 1:
-                maximumMoveSize = rd.randint(1, int(maximumMoveSize / 2))
+                maximumMoveSize = rd.randint(1, maximumMoveSize)
                 for i in range(maximumMoveSize):
-                    individual.interval.append(
-                        increase_op)  # todo: Maybe the magnitude of these changes can be a parameter
-                    individual.interval.remove(decrease_op)
-                individual.interval.sort()
+                    if firstOrSecond == 0:
+                        task = individual.intervals[mutationPoint][0]
+                        individual.intervals[mutationPoint].remove(task)
+                        individual.intervals[mutationPoint-1].append(task)
+                    else:
+                        task = individual.intervals[mutationPoint - 1][-1]
+                        individual.intervals[mutationPoint-1].remove(task)
+                        individual.intervals[mutationPoint].insert(0, task)
 
-        if len(set(individual.interval)) > 1:
+        if len(individual.intervals) > 1:
             permutation()
-            partition()
+            intervals()
 
         return individual
 
@@ -152,18 +168,16 @@ class GeneticAlgorithm:
                 generationsWithoutImprovement += 1
             self._stats.numberOfGenerations += 1
         self._stats.objValue = bestIndividualOverall.fitness
+        self._bestIndividual = bestIndividualOverall
 
     def getStatistics(self):
         return self._stats
 
-    def getTasksPartition(self):
-        return
+    def getIntervals(self):
+        return self._bestIndividual.intervals
 
     def getOperatorsPermutation(self):
-        return
-
-    def getSolution(self):
-        return
+        return self._bestIndividual.permutation
 
 
 def tests():
@@ -198,14 +212,13 @@ def tests():
 
 def debug():
     rd.seed(1234554321)
-    for i in range(5):
-        rd.seed(12345 * i)
-        ga = GeneticAlgorithm("tba2", 1000, 1000, 3, 0.5, 500)
-        ga.evolve()
-        print(ga._stats.objValue)
-        print("{0:.0f}%".format(
-            100 * ((ga._stats.firstGenerationObjValue - ga._stats.objValue) / ga._stats.firstGenerationObjValue)))
+    ga = GeneticAlgorithm("tba1", 1000, 500, 3, 0.5, 500)
+    ga.evolve()
+    print(ga.getStatistics().objValue)
+    print(ga.getOperatorsPermutation())
+    print(ga.getIntervals())
 
 
 if __name__ == "__main__":
     debug()
+

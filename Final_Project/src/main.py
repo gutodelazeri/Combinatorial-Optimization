@@ -1,6 +1,6 @@
 import argparse
-import IPSolver as IP
-import GeneticAlgorithm as GA
+from IPSolver import IPSolver as IP
+from  GeneticAlgorithm import GeneticAlgorithm as GA
 
 
 def parseInput():
@@ -51,15 +51,15 @@ def parseInput():
         return args.outputFile, args.instanceName, args.method, args.Verbose, args.TimeLimit, args.Mu, args.Lambda, args.k, args.Phi, args.Omega
 
 
-def saveSolution(outFile, stats):
-    with open(outFile + ".dat", 'w') as out:
-        out.write("Instance name: {0}".format(stats.instance))
-        out.write("Method: {0}".format(stats.method))
-        out.write("Elapsed Time: {0}".format(stats.totalTime))
-        out.write("Objective Value: {0}".format(stats.objValue))
-        out.write("-----")
-        out.write("Permutation: {0}".format(stats.getPermutation()))
-        out.write("Intervals: {0}".format(stats.getIntervals()))
+def saveSolution(outFile, stats, solution):
+    with open(outFile, 'w') as out:
+        out.write("Instance name: {0}\n".format(stats.instanceName))
+        out.write("Method: {0}\n".format(stats.method))
+        out.write("Elapsed Time: {0}\n".format(stats.runningTime))
+        out.write("Objective Value: {0}\n".format(stats.objValue))
+        out.write("-----\n")
+        out.write("Permutation: {0}\n".format(solution.getPermutation()))
+        out.write("Intervals: {0}\n".format(solution.getIntervals()))
 
 
 def main():
@@ -68,11 +68,13 @@ def main():
         ga = GA(instance, m, l, k, p, o, t, v)
         ga.evolve()
         statistics = ga.getStatistics()
+        solution = ga
     else:
         ip = IP(instance, t, v)
         ip.solveModel()
         statistics = ip.getStatistics()
-    saveSolution(outFile, statistics)
+        solution = ip
+    saveSolution(outFile, statistics, solution)
 
 
 if __name__ == "__main__":
