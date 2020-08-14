@@ -6,6 +6,7 @@ from  GeneticAlgorithm import GeneticAlgorithm as GA
 def parseInput():
     parser = argparse.ArgumentParser(description='INF05010 - Final Project')
     parser.add_argument('outputFile', help='Name of the file to store the solution')
+    # todo: outputfile should be optional an have a default value
     parser.add_argument('instanceName', help='Name of the instance')
     parser.add_argument('method', help='Method used to solve the instance. It can be Genetic Algorithm (ga) or '
                                        'Integer Programming (ip)')
