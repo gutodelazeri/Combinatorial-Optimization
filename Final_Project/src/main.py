@@ -14,11 +14,11 @@ def parseInput():
     parser.add_argument("-v", "--Verbose", help="Increase output verbosity", action="store_true")
     parser.add_argument("-t", "--TimeLimit", type=int, default=1800,
                         help="Limit of time in seconds for the method. Should be a positive integer.")
-    parser.add_argument("-m", "--Mu", type=int, default=1000, help="Number of individuals. Should be a positive integer")
+    parser.add_argument("-m", "--Mu", type=int, default=1000, help="Size of the population. Should be a positive integer")
     parser.add_argument("-l", "--Lambda", type=int, default=1000,
                         help="Number of individuals created by crossover. Should be an even positive integer.")
     parser.add_argument("-p", "--Phi", type=float, default=0.25,
-                        help="Likelihood of individual to mutate. Should be a float between 0 and 1.")
+                        help="Likelihood of an individual to mutate. Should be a float between 0 and 1.")
     parser.add_argument("-o", "--Omega", type=int, default=500,
                         help="Maximum number of generations without improvement. Should be a positive integer.")
 
