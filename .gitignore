@@ -28,3 +28,7 @@ Manifest.toml
 
 # Mac OS
 .DS_Store
+
+# pyCharm
+.idea
+
